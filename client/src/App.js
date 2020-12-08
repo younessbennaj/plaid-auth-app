@@ -9,29 +9,29 @@ import { resolve } from 'url';
 function App() {
   //Plaid config 
 
-  const [linkToken, setLinkToken] = useState("link-sandbox-fe2b5232-f6a6-4e38-bbe7-9044a70a6ec6");
+  const [linkToken, setLinkToken] = useState("");
 
   const onSuccess = useCallback((public_token, metadata) => {
 
     console.log(public_token);
 
-    // const data = JSON.stringify({ "public_token": public_token });
-    // const config = {
-    //   method: 'post',
-    //   url: 'http://localhost:3000/get_access_token',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   data: data
-    // };
+    const data = JSON.stringify({ "public_token": public_token });
+    const config = {
+      method: 'post',
+      url: 'http://localhost:3000/get_access_token',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: data
+    };
 
-    // axios(config)
-    //   .then(function (response) {
-    //     console.log(response.data);
-    //   })
-    //   .catch(function (error) {
-    //     console.log(error);
-    //   });
+    axios(config)
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
 
   }, []);
 
@@ -62,9 +62,7 @@ function App() {
 
     axios(config)
       .then(function (response) {
-        console.log(response.data.link_token);
         setLinkToken(response.data.link_token);
-        open();
       })
       .catch(function (error) {
         console.log(error);
@@ -78,6 +76,7 @@ function App() {
         <input onChange={(e) => setPassword(e.target.value)} value={password} type="password" name="password" id="password" />
         <input type="submit" value="submit" />
       </form>
+      <button onClick={() => open()}>Open</button>
     </div>
   );
 }
