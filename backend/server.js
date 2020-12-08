@@ -30,12 +30,13 @@ app.get('/', (req, res) => {
 })
 
 app.post('/get_link_token', (req, res) => {
-    console.log(req.body.email);
+    // console.log(req.body.email);
+    // User.findOne({ email: req.body.email }).then(user => console.log(user._id));
     User.findOne({ email: req.body.email }).then(user => {
         const configs = {
             user: {
                 //On récupère un id unique pour notre utilisateur
-                client_user_id: user_id,
+                client_user_id: user._id,
             },
             client_name: 'Plaid Auth App Test',
             products: ['auth'],
@@ -54,6 +55,16 @@ app.post('/get_link_token', (req, res) => {
         })
     })
 })
+
+app.post('/get_access_token', (req, res) => {
+    const PUBLIC_TOKEN = req.body.public_token;
+
+    // client.exchangePublicToken(PUBLIC_TOKEN).then(tokenResponse => {
+    //     const ACCESS_TOKEN = tokenResponse.access_token;
+    //     const ITEM_ID = tokenResponse.item_id;
+    //     console.log(ACCESS_TOKEN, ITEM_ID);
+    // })
+});
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
