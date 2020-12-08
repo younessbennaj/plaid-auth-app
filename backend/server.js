@@ -1,13 +1,19 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
+
+const { User } = require('./models/User');
+
+//On utilise dotenv pour récupérer nos variables d'environnement
+require('dotenv').config();
 
 app.use(cors());
 app.use(express.json());
 
+const uri = process.env.DB_URI;
 
-//On utilise dotenv pour récupérer nos variables d'environnement
-require('dotenv').config();
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => console.log('Connected to MongoDB'))
 
 const port = process.env.PORT || 3000;
 
@@ -24,50 +30,30 @@ app.get('/', (req, res) => {
 })
 
 app.post('/get_link_token', (req, res) => {
-    const configs = {
-        user: {
-            // This should correspond to a unique id for the current user.
-            client_user_id: 'test-user-id',
-        },
-        client_name: 'Plaid Auth App Test',
-        products: ['auth'],
-        country_codes: ['FR'],
-        language: 'fr',
-    };
+    console.log(req.body.email);
+    User.findOne({ email: req.body.email }).then(user => {
+        const configs = {
+            user: {
+                //On récupère un id unique pour notre utilisateur
+                client_user_id: user_id,
+            },
+            client_name: 'Plaid Auth App Test',
+            products: ['auth'],
+            country_codes: ['FR'],
+            language: 'fr',
+        };
 
-    client.createLinkToken(configs, (error, createTokenResponse) => {
-        if (error != null) {
-            console.error(error);
-            return res.json({
-                error: error,
-            });
-        }
-        res.json(createTokenResponse);
+        client.createLinkToken(configs, (error, createTokenResponse) => {
+            if (error != null) {
+                console.error(error);
+                return res.json({
+                    error: error,
+                });
+            }
+            res.json(createTokenResponse);
+        })
     })
 })
-
-// app.post('/get_link_token', async (request, response) => {
-//     try {
-//       // Get the client_user_id by searching for the current user
-//       const user = await User.find(...);
-//       const clientUserId = user.id;
-//       // Create the link_token with all of your configurations
-//       const tokenResponse = await client.createLinkToken({
-//         user: {
-//           client_user_id: clientUserId,
-//         },
-//         client_name: 'My App',
-//         products: ['auth'],
-//         country_codes: ['US'],
-//         language: 'en',
-//         webhook: 'https://webhook.sample.com',
-//       });
-//       response.on({ link_token: tokenResponse.link_token });
-//     } catch (e) {
-//       // Display error on client
-//       return response.send({ error: e.message });
-//     }
-//   });
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
